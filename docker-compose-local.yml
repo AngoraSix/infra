@@ -1,0 +1,194 @@
+version: '3.8'
+
+networks:
+  angorasix-net:
+    driver: bridge
+
+services:
+  # INFRA
+  a6-mongo:
+    image: mongo
+    networks:
+      - angorasix-net
+    ports:
+      - '27017:27017'
+
+  #CONTRIBUTORS
+  contributors-postgres:
+    image: postgres
+    restart: always
+    networks:
+      - angorasix-net
+    environment:
+      POSTGRES_DB: ${A6_INFRA_CONTRIBUTORS_KC_DB_NAME}
+      POSTGRES_USER: ${A6_INFRA_CONTRIBUTORS_KC_DB_USER}
+      POSTGRES_PASSWORD: ${A6_INFRA_CONTRIBUTORS_KC_DB_PASSWORD}
+  contributors-keycloak:
+    # platform: linux/amd64
+    image: "angorasix/contributors-keycloak:${TAG:-latest}"
+    restart: on-failure
+    networks:
+      - angorasix-net
+    build:
+      context: ../contributors-keycloak
+    environment:
+      KEYCLOAK_ADMIN: ${A6_INFRA_CONTRIBUTORS_KC_ADMIN_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${A6_INFRA_CONTRIBUTORS_KC_ADMIN_PASSWORD}
+      KC_DB: ${A6_INFRA_CONTRIBUTORS_KC_DB_VENDOR}
+      KC_DB_URL: ${A6_INFRA_CONTRIBUTORS_KC_DB_URL}
+      KC_DB_USERNAME: ${A6_INFRA_CONTRIBUTORS_KC_DB_USER}
+      KC_DB_PASSWORD: ${A6_INFRA_CONTRIBUTORS_KC_DB_PASSWORD}
+    ports:
+      - '9081:8443'
+    command: ["start", "--optimized", "--hostname-port=9081", "--import-realm"]
+    depends_on:
+      - contributors-postgres
+
+  # BACKEND SERVICES
+  projects.core:
+    image: "angorasix/projects.core:${TAG:-latest}"
+    restart: on-failure
+    networks:
+      - angorasix-net
+    build:
+      context: ../projects/core
+    environment:
+      A6_PROJECTS_CORE_PORT: 8080
+      A6_PROJECTS_CORE_MONGO_DB_URI: ${A6_MONGO_URL}/projects.core
+      A6_PROJECTS_CORE_CONTRIBUTORHEADER: ${A6_COMMON_CONTRIBUTORHEADER}
+    ports:
+      - '9082:8080'
+  projects.presentations:
+    image: "angorasix/projects.presentations:${TAG:-latest}"
+    restart: on-failure
+    networks:
+      - angorasix-net
+    build:
+      context: ../projects/presentations
+    environment:
+      A6_PROJECTS_PRESENTATIONS_PORT: 8080
+      A6_PROJECTS_PRESENTATIONS_MONGO_DB_URI: ${A6_MONGO_URL}/projects.presentations
+      A6_PROJECTS_PRESENTATIONS_CONTRIBUTORHEADER: ${A6_COMMON_CONTRIBUTORHEADER}
+    ports:
+      - '9083:8080'
+
+  media:
+    platform: linux/arm64/v8
+    image: "angorasix/media:${TAG:-latest}"
+    restart: on-failure
+    networks:
+      - angorasix-net
+    build:
+      context: ../media
+    volumes:
+      - ./resources/media:/root/config
+    environment:
+      A6_MEDIA_SVC_HOST: localhost
+      A6_MEDIA_SVC_PORT: 80
+      A6_MEDIA_SVC_PROTOCOL: http
+      A6_MEDIA_SVC_STRATEGY:
+      A6_MEDIA_SVC_BUCKET_NAME:
+      A6_MEDIA_SVC_PROJECT_ID:
+      GOOGLE_APPLICATION_CREDENTIALS:
+      A6_MEDIA_SVC_STORAGE_API_HOST:
+      A6_MEDIA_SVC_THUMBNAIL_MAX_WIDTH:
+      A6_MEDIA_SVC_THUMBNAIL_MAX_HEIGHT:
+      A6_MEDIA_SVC_THUMBNAIL_MAX_SIZE:
+      A6_MEDIA_SVC_THUMBNAIL_JPG_QUALITY:
+      A6_MEDIA_SVC_THUMBNAIL_PNG_COMPRESSION:
+    ports:
+      - "9084:80"
+
+  clubs:
+    image: "angorasix/clubs:${TAG:-latest}"
+    restart: on-failure
+    networks:
+      - angorasix-net
+    build:
+      context: ../clubs
+    environment:
+      A6_CLUBS_PORT: 8080
+      A6_CLUBS_MONGO_DB_URI: ${A6_MONGO_URL}/clubs
+      A6_CLUBS_CONTRIBUTORHEADER: ${A6_COMMON_CONTRIBUTORHEADER}
+    ports:
+      - '9085:8080'
+
+  # FRONT
+  front.aindanow:
+    image: 'angorasix/front.aindanow:${TAG:-latest}'
+    restart: on-failure
+    networks:
+      - angorasix-net
+    build:
+      context: ../front/AindaNow
+    environment:
+      NEXTAUTH_URL:  ${A6_INFRA_CANONICAL_URL_AINDANOW}
+      NEXTAUTH_URL_INTERNAL: http://front.aindanow:80
+      AN_APP_API_SERVER_BASE_URL: ${A6_INFRA_AN_APP_API_SERVER_BASE_URL}
+      AN_APP_API_BROWSER_BASE_URL: ${A6_INFRA_AN_APP_API_BROWSER_BASE_URL}
+      AN_FRONT_API_MEDIA_SERVER_BASE_URL: ${A6_INFRA_AN_FRONT_API_MEDIA_SERVER_BASE_URL}
+      AN_APP_AUTH_COOKIE: ${A6_INFRA_AN_APP_AUTH_COOKIE}
+      AN_APP_THIRDPARTIES_YOUTUBE_APIKEY: ${A6_INFRA_AN_APP_THIRDPARTIES_YOUTUBE_APIKEY}
+      AN_APP_OAUTH_PROVIDER_ISSUER: ${A6_INFRA_AN_APP_OAUTH_PROVIDER_ISSUER}
+      AN_APP_OAUTH_PROVIDER_DISCOVERY_ENDPOINT: ${A6_INFRA_AN_APP_OAUTH_PROVIDER_DISCOVERY_ENDPOINT}
+      AN_APP_OAUTH_PROVIDER_TOKEN_ENDPOINT: ${A6_INFRA_AN_APP_OAUTH_PROVIDER_TOKEN_ENDPOINT:-http://contributors-keycloak:8443/auth/realms/Angorasix/protocol/openid-connect/token}
+      AN_APP_OAUTH_CLIENT_ID: ${A6_INFRA_AN_APP_OAUTH_CLIENT_ID}
+      AN_APP_OAUTH_CLIENT_SECRET: ${A6_INFRA_AN_APP_OAUTH_CLIENT_SECRET}
+      AN_APP_OAUTH_REDIRECT_URI: ${A6_INFRA_AN_APP_OAUTH_REDIRECT_URI}
+      AN_APP_CRYPTO_KEY: ${A6_INFRA_AN_APP_CRYPTO_KEY}
+      AN_APP_OAUTH_JWT_SECRET: ${A6_INFRA_AN_APP_OAUTH_JWT_SECRET}
+      AN_APP_MAIN_SECRET: ${A6_INFRA_AN_APP_MAIN_SECRET}
+    ports:
+      - "9090:80"
+  front.angorasix:
+    image: 'angorasix/front.angorasix:${TAG:-latest}'
+    restart: on-failure
+    networks:
+      - angorasix-net
+    build:
+      context: ../front/AngoraSix
+    environment:
+      NEXTAUTH_URL: ${A6_INFRA_CANONICAL_URL_ANGORASIX}
+      NEXTAUTH_URL_INTERNAL: http://front.angorasix:80
+      A6_APP_API_SERVER_BASE_URL: ${A6_INFRA_A6_APP_API_SERVER_BASE_URL}
+      A6_APP_API_BROWSER_BASE_URL: ${A6_INFRA_A6_APP_API_BROWSER_BASE_URL}
+      A6_APP_AUTH_COOKIE: ${A6_INFRA_A6_APP_AUTH_COOKIE}
+      A6_APP_THIRDPARTIES_YOUTUBE_APIKEY: ${A6_INFRA_A6_APP_THIRDPARTIES_YOUTUBE_APIKEY}
+      A6_APP_OAUTH_PROVIDER_ISSUER: ${A6_INFRA_A6_APP_OAUTH_PROVIDER_ISSUER}
+      A6_APP_OAUTH_PROVIDER_DISCOVERY_ENDPOINT: ${A6_INFRA_A6_APP_OAUTH_PROVIDER_DISCOVERY_ENDPOINT}
+      A6_APP_OAUTH_PROVIDER_TOKEN_ENDPOINT: ${A6_INFRA_A6_APP_OAUTH_PROVIDER_TOKEN_ENDPOINT:-http://contributors-keycloak:8443/auth/realms/Angorasix/protocol/openid-connect/token}
+      A6_APP_OAUTH_CLIENT_ID: ${A6_INFRA_A6_APP_OAUTH_CLIENT_ID}
+      A6_APP_OAUTH_CLIENT_SECRET: ${A6_INFRA_A6_APP_OAUTH_CLIENT_SECRET}
+      A6_APP_OAUTH_REDIRECT_URI: ${A6_INFRA_A6_APP_OAUTH_REDIRECT_URI}
+      A6_APP_CRYPTO_KEY: ${A6_INFRA_A6_APP_CRYPTO_KEY}
+      A6_APP_OAUTH_JWT_SECRET: ${A6_INFRA_A6_APP_OAUTH_JWT_SECRET}
+      A6_APP_MAIN_SECRET: ${A6_INFRA_A6_APP_MAIN_SECRET}
+    ports:
+      - "7070:80"
+
+  # GATEWAY
+  gateway:
+    image: "angorasix/gateway:${TAG:-latest}"
+    restart: on-failure
+    networks:
+      - angorasix-net
+    volumes:
+      - ./config/gateway:/config
+    build:
+      context: ../gateway
+    environment:
+      A6_GATEWAY_PORT: 8080
+      A6_GATEWAY_COMMON_CONTRIBUTORHEADER: ${A6_COMMON_CONTRIBUTORHEADER}
+      A6_GATEWAY_CONTRIBUTORS_URI: ${A6_INFRA_GATEWAY_CONTRIBUTORS_URI:-http://contributors-keycloak:8443}
+      A6_GATEWAY_PROJECTS_CORE_URI: ${A6_INFRA_GATEWAY_PROJECTS_CORE_URI:-http://projects.core:8080}
+      A6_GATEWAY_PROJECTS_PRESENTATION_URI: ${A6_INFRA_GATEWAY_PROJECTS_PRESENTATION_URI:-http://projects.presentations:8080}
+      A6_GATEWAY_PROJECTS_MANAGEMENT_URI: ${A6_INFRA_GATEWAY_PROJECTS_MANAGEMENT_URI:-http://projects.management:8080}
+      A6_GATEWAY_MEDIA_URI: ${A6_INFRA_GATEWAY_MEDIA_URI:-http://media:8080}
+      A6_GATEWAY_CLUBS_URI: ${A6_INFRA_GATEWAY_CLUBS_URI:-http://clubs:8080}
+      A6_GATEWAY_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_GATEWAY_OAUTH_SECURITY_ISSUER_URI:-http://contributors-keycloak:8443/auth/realms/Angorasix}
+      A6_GATEWAY_OAUTH_CONTRIBUTORS_CLIENT_ID: ${A6_INFRA_GATEWAY_OAUTH_CONTRIBUTORS_CLIENT_ID}
+      A6_GATEWAY_OAUTH_CONTRIBUTORS_CLIENT_SECRET: ${A6_INFRA_GATEWAY_OAUTH_CONTRIBUTORS_CLIENT_SECRET}
+      A6_GATEWAY_OAUTH_CONTRIBUTORS_TOKEN_URI: ${A6_INFRA_GATEWAY_OAUTH_CONTRIBUTORS_TOKEN_URI:-http://contributors-keycloak:8443/auth/realms/Angorasix/protocol/openid-connect/token}
+      A6_GATEWAY_CORS_ALLOWEDORIGINS: ${A6_INFRA_GATEWAY_CORS_ALLOWEDORIGINS}
+    ports:
+      - '9080:8080'
