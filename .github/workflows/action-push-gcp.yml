@@ -1,0 +1,62 @@
+name: Build Dockerized app and push artifact to GCP
+
+on:
+  workflow_call:
+    inputs:
+      app:
+        required: true
+        type: string
+    secrets:
+      wif-provider:
+        required: true
+        type: string
+      wif-service-account:
+        required: true
+        type: string
+
+env:
+  PROJECT_ID: angorasix
+  GAR_LOCATION: us
+  REGION: us-central1
+  ARTIFACT_REPOSITORY: gcr.io
+
+jobs:
+  push-artifact:
+    # Add 'id-token' with the intended permissions for workload identity federation
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v3'
+
+      - name: 'Google auth'
+        id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: '${{ secrets.wif-provider }}' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
+          service_account: '${{ secrets.wif-service-account }}' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+        with:
+          project_id: '${{ env.PROJECT_ID }}'
+
+      - name: 'Docker auth'
+        run: |-
+          gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
+
+      - name: 'Build and push container'
+        run: |-
+          docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPOSITORY }}/${{ ${{ inputs.app }} }}:${{ github.sha }}" -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPOSITORY }}/${{ inputs.app }}:latest" -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPOSITORY }}/${{ inputs.app }}:${{ github.ref_name }}" .
+          docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPOSITORY }}/${{ inputs.app }}:${{ github.sha }}" 
+          docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPOSITORY }}/${{ inputs.app }}:latest"
+          docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPOSITORY }}/${{ inputs.app }}:${{ github.ref_name }}"
+
+      - name: 'Render templatised config manifests'
+        run: |-
+          export PROJECT_ID="${{ env.PROJECT_ID }}"
+          export REGION="${{ env.REGION }}"
+          for template in $(ls config/*.template.yaml); do envsubst < ${template} > ${template%%.*}.yaml ; done
