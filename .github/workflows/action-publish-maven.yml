@@ -8,13 +8,10 @@ on:
         type: string
       ossrh-username:
         required: true
-        type: string
       ossrh-token:
         required: true
-        type: string
       maven-gpg-passphrase:
         required: true
-        type: string
 
 jobs:
   build-and-publish:

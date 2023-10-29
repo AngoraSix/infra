@@ -9,10 +9,8 @@ on:
     secrets:
       wif-provider:
         required: true
-        type: string
       wif-service-account:
         required: true
-        type: string
 
 env:
   PROJECT_ID: angorasix
