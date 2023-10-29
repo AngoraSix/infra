@@ -1,0 +1,38 @@
+name: Build Maven artifact and publish to maven central (via OSSRH)
+
+on:
+  workflow_call:
+    secrets:
+      maven-gpg-private-key:
+        required: true
+        type: string
+      ossrh-username:
+        required: true
+        type: string
+      ossrh-token:
+        required: true
+        type: string
+      maven-gpg-passphrase:
+        required: true
+        type: string
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Maven Central Repository
+      uses: actions/setup-java@v1
+      with:
+        java-version: 17
+        server-id: ossrh
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
+        gpg-private-key: ${{ secrets.maven-gpg-private-key }}
+        gpg-passphrase: MAVEN_GPG_PASSPHRASE
+    - name: Deploy with Maven
+      run: mvn -B clean deploy -Pci-cd
+      env:
+        MAVEN_USERNAME: ${{ secrets.ossrh-username }}
+        MAVEN_PASSWORD: ${{ secrets.ossrh-token }}
+        MAVEN_GPG_PASSPHRASE: ${{ secrets.maven-gpg-passphrase }}
