@@ -51,3 +51,21 @@ https://cloud.google.com/run/docs/authenticating/service-to-service
 
 In general, we want to manage the request ourselves, so this resource is more suitable:
 https://cloud.google.com/run/docs/securing/service-identity#identity-tokens
+
+# Manage Git pushes:
+Tags with the format `vMajor.Minor.Patch` (major.minor.patch) version trigger a new artifact/image push.
+
+To create a new tag in the current commit:
+```
+git tag -a vMajor.Minor.Patch -m "New release purpose"
+git push origin --tags
+```
+
+Remember to protect the `v*.*.*` tags in the Github repository configs.
+
+If we need to re-push a tag (mainly because the CI plan failed, and we need to fix the codebase and re-run it):
+```
+git tag --delete vMajor.Minor.Patch
+git push origin :vMajor.Minor.Patch
+```
+(remove the tag locally, and delete it in the remote repo)
