@@ -5,6 +5,7 @@ on:
     inputs:
       app:
         required: true
+        type: string
     secrets:
       wif-provider:
         required: true
