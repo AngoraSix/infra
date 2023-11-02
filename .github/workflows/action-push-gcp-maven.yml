@@ -1,4 +1,4 @@
-name: Build Dockerized app and push artifact to GCP
+name: Build Dockerized app and push artifact to GCP for Maven projects (obtaining artifact from previous step)
 
 on:
   workflow_call:
