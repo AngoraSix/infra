@@ -6,6 +6,9 @@ on:
       app:
         required: true
         type: string
+      cloud-service:
+        required: true
+        type: string
     secrets:
       wif-provider:
         required: true
@@ -64,3 +67,7 @@ jobs:
           export PROJECT_ID="${{ env.PROJECT_ID }}"
           export REGION="${{ env.REGION }}"
           for template in $(ls config/*.template.yaml); do envsubst < ${template} > ${template%%.*}.yaml ; done
+      
+      - name: 'Deploy new revision'
+        run: |-
+          gcloud run deploy ${{ inputs.cloud-service }} --region ${{ env.REGION }} --image ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPOSITORY }}/${{ inputs.app }}:latest
