@@ -44,6 +44,24 @@ services:
       - '9081:8080'
 
   # BACKEND SERVICES
+  projects.management.core:
+    image: "angorasix/projects.management.core:${TAG-latest}"
+    restart: on-failure:3
+    networks:
+      - angorasix-net
+    build:
+      context: ../projects/mgmt/core
+      additional_contexts:
+        a6-deps: ~/.m2/repository/com/angorasix
+    environment:
+      A6_PROJECTS_MGMT_CORE_PORT: 8080
+      A6_PROJECTS_MGMT_CORE_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL}
+      A6_PROJECTS_MGMT_CORE_MONGO_DB_NAME: a6ProjectsManagementCoreLocal
+      A6_PROJECTS_MGMT_CORE_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
+      A6_PROJECTS_MGMT_CORE_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_A6_PROJECTS_MGMT_CORE_OAUTH_SECURITY_ISSUER_URI:-http://contributors:8080}
+    ports:
+      - '9086:8080'
+
   projects.core:
     platform: linux/arm64
     image: "angorasix/projects.core:${TAG:-latest}"
@@ -159,6 +177,7 @@ services:
       AN_APP_MAIN_SECRET: ${A6_INFRA_AN_APP_MAIN_SECRET}
       AN_FRONT_CONFIG_IMAGES_ALLOWEDDOMAINS: ${A6_INFRA_AN_FRONT_CONFIG_IMAGES_ALLOWEDDOMAINS}
       NODE_TLS_REJECT_UNAUTHORIZED: ${A6_INFRA_AN_NODE_TLS_REJECT_UNAUTHORIZED:-1}
+      AN_APP_OAUTH_FW_DEBUG: true
     ports:
       - "9090:80"
   # front.angorasix:
@@ -203,11 +222,11 @@ services:
       A6_GATEWAY_CONTRIBUTORS_URI: ${A6_INFRA_GATEWAY_CONTRIBUTORS_URI:-http://contributors:8080}
       A6_GATEWAY_PROJECTS_CORE_URI: ${A6_INFRA_GATEWAY_PROJECTS_CORE_URI:-http://projects.core:8080}
       A6_GATEWAY_PROJECTS_PRESENTATION_URI: ${A6_INFRA_GATEWAY_PROJECTS_PRESENTATION_URI:-http://projects.presentations:8080}
-      A6_GATEWAY_PROJECTS_MANAGEMENT_URI: ${A6_INFRA_GATEWAY_PROJECTS_MANAGEMENT_URI:-http://projects.management:8080}
+      A6_GATEWAY_PROJECTS_MANAGEMENT_URI: ${A6_INFRA_GATEWAY_PROJECTS_MANAGEMENT_URI:-http://projects.management.core:8080}
       A6_GATEWAY_MEDIA_URI: ${A6_INFRA_GATEWAY_MEDIA_URI:-http://media:80}
       A6_GATEWAY_CLUBS_URI: ${A6_INFRA_GATEWAY_CLUBS_URI:-http://clubs:8080}
       A6_GATEWAY_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_GATEWAY_OAUTH_SECURITY_ISSUER_URI:-http://contributors:8080}
       A6_GATEWAY_CORS_ALLOWEDORIGINS: ${A6_INFRA_A6_GATEWAY_CORS_ALLOWEDORIGINS}
-      A6_GATEWAY_LOGGING_LEVEL: ${A6_INFRA_A6_GATEWAY_LOGGING_LEVEL:-DEBUG}
+      A6_GATEWAY_LOGGING_LEVEL_GATEWAY: ${A6_INFRA_A6_GATEWAY_LOGGING_LEVEL:-DEBUG}
     ports:
       - '9080:8080'
