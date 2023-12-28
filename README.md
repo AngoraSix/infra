@@ -1,7 +1,10 @@
 # angorasix.core
 Core project orchestrating all Angorasix services
 
-# Build locally
+# Build locally: Option A - Full build from Docker (takes more time)
+`docker-compose -f docker-compose-local.yml -f docker-compose-local.full-build.yml up -d`
+
+# Build locally: Option B - Faster Docker Build (uses pre-build resources)
 For Maven projects:
 `mvn clean package`
 `npm run build` (not necessary - Docker builds for us)
