@@ -15,7 +15,6 @@ services:
 
   #CONTRIBUTORS
   contributors:
-    platform: linux/arm64
     image: "angorasix/contributors:${TAG:-latest}"
     restart: on-failure:3
     networks:
@@ -44,26 +43,7 @@ services:
       - '9081:8080'
 
   # BACKEND SERVICES
-  projects.management.core:
-    image: "angorasix/projects.management.core:${TAG-latest}"
-    restart: on-failure:3
-    networks:
-      - angorasix-net
-    build:
-      context: ../projects/mgmt/core
-      additional_contexts:
-        a6-deps: ~/.m2/repository/com/angorasix
-    environment:
-      A6_PROJECTS_MGMT_CORE_PORT: 8080
-      A6_PROJECTS_MGMT_CORE_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL}
-      A6_PROJECTS_MGMT_CORE_MONGO_DB_NAME: a6ProjectsManagementCoreLocal
-      A6_PROJECTS_MGMT_CORE_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
-      A6_PROJECTS_MGMT_CORE_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_A6_PROJECTS_MGMT_CORE_OAUTH_SECURITY_ISSUER_URI:-http://contributors:8080}
-    ports:
-      - '9086:8080'
-
   projects.core:
-    platform: linux/arm64
     image: "angorasix/projects.core:${TAG:-latest}"
     restart: on-failure:3
     networks:
@@ -80,7 +60,6 @@ services:
       - '9082:8080'
 
   projects.presentations:
-    platform: linux/arm64
     image: "angorasix/projects.presentations:${TAG:-latest}"
     restart: on-failure:3
     networks:
@@ -96,25 +75,7 @@ services:
     ports:
       - '9083:8080'
 
-  clubs:
-    platform: linux/arm64
-    image: "angorasix/clubs:${TAG:-latest}"
-    restart: on-failure:3
-    networks:
-      - angorasix-net
-    build:
-      context: ../clubs
-    environment:
-      A6_CLUBS_PORT: 8080
-      A6_CLUBS_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL}
-      A6_CLUBS_MONGO_DB_NAME: 'a6ClubsLocal'
-      A6_CLUBS_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
-      A6_CLUBS_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_A6_CLUBS_OAUTH_SECURITY_ISSUER_URI:-http://contributors:8080}
-    ports:
-      - '9085:8080'
-
   media:
-    platform: linux/arm64/v8
     image: "angorasix/media:${TAG:-latest}"
     restart: on-failure:3
     networks:
@@ -141,9 +102,40 @@ services:
     ports:
       - "9084:80"
 
+  clubs:
+    image: "angorasix/clubs:${TAG:-latest}"
+    restart: on-failure:3
+    networks:
+      - angorasix-net
+    build:
+      context: ../clubs
+    environment:
+      A6_CLUBS_PORT: 8080
+      A6_CLUBS_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL}
+      A6_CLUBS_MONGO_DB_NAME: 'a6ClubsLocal'
+      A6_CLUBS_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
+      A6_CLUBS_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_A6_CLUBS_OAUTH_SECURITY_ISSUER_URI:-http://contributors:8080}
+    ports:
+      - '9085:8080'
+  
+  projects.management.core:
+    image: "angorasix/projects.management.core:${TAG-latest}"
+    restart: on-failure:3
+    networks:
+      - angorasix-net
+    build:
+      context: ../projects/mgmt/core
+    environment:
+      A6_PROJECTS_MGMT_CORE_PORT: 8080
+      A6_PROJECTS_MGMT_CORE_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL}
+      A6_PROJECTS_MGMT_CORE_MONGO_DB_NAME: a6ProjectsManagementCoreLocal
+      A6_PROJECTS_MGMT_CORE_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
+      A6_PROJECTS_MGMT_CORE_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_A6_PROJECTS_MGMT_CORE_OAUTH_SECURITY_ISSUER_URI:-http://contributors:8080}
+    ports:
+      - '9086:8080'
+
   # FRONT
   front.aindanow:
-    platform: linux/arm64/v8
     image: 'gcr.io/angorasix/front.aindanow:latest'
     restart: on-failure:3
     healthcheck:
@@ -177,7 +169,7 @@ services:
       AN_APP_MAIN_SECRET: ${A6_INFRA_AN_APP_MAIN_SECRET}
       AN_FRONT_CONFIG_IMAGES_ALLOWEDDOMAINS: ${A6_INFRA_AN_FRONT_CONFIG_IMAGES_ALLOWEDDOMAINS}
       NODE_TLS_REJECT_UNAUTHORIZED: ${A6_INFRA_AN_NODE_TLS_REJECT_UNAUTHORIZED:-1}
-      AN_APP_OAUTH_FW_DEBUG: true
+      AN_APP_OAUTH_FW_DEBUG: ${A6_INFRA_AN_APP_OAUTH_FW_DEBUG:-true}
     ports:
       - "9090:80"
   # front.angorasix:

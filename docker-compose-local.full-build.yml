@@ -1,0 +1,42 @@
+# To perform a full build of the Maven projects (not relying on pre-existing jar file)
+version: '3.8'
+
+services:
+  #CONTRIBUTORS
+  contributors:
+    build:
+      dockerfile: full-build.Dockerfile
+      additional_contexts:
+        a6-deps: ~/.m2/repository/com/angorasix
+    
+  # BACKEND SERVICES
+  projects.core:
+    build:
+      dockerfile: full-build.Dockerfile
+      additional_contexts:
+        a6-deps: ~/.m2/repository/com/angorasix
+    
+  projects.presentations:
+    build:
+      dockerfile: full-build.Dockerfile
+      additional_contexts:
+        a6-deps: ~/.m2/repository/com/angorasix
+    
+  clubs:
+    build:
+      dockerfile: full-build.Dockerfile
+      additional_contexts:
+        a6-deps: ~/.m2/repository/com/angorasix
+
+  projects.management.core:
+    build:
+      dockerfile: full-build.Dockerfile
+      additional_contexts:
+        a6-deps: ~/.m2/repository/com/angorasix
+    
+  # GATEWAY
+  gateway:
+    build:
+      dockerfile: full-build.Dockerfile
+      additional_contexts:
+        a6-deps: ~/.m2/repository/com/angorasix
