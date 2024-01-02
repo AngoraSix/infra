@@ -2,3 +2,4 @@
 config/
 .DS_Store
 old.env
+.env.local
