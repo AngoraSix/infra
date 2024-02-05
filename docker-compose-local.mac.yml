@@ -25,6 +25,7 @@ services:
   projects.management.core:
     platform: linux/arm64/v8
     
+    
   # FRONT
   front.aindanow:
     platform: linux/arm64/v8

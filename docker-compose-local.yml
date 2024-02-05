@@ -13,6 +13,23 @@ services:
     ports:
       - '27017:27017'
 
+  a6-rabbitmq:
+    # image: rabbitmq
+    # for dev env:
+    image: rabbitmq:management
+    networks:
+      - angorasix-net
+    volumes:
+      - ./resources/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./resources/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+      # - :/var/lib/rabbitmq/.erlang.cookie
+    environment:
+      RABBITMQ_DEFAULT_VHOST: "/"
+    #   - RABBITMQ_ERLANG_COOKIE=cookiesecret
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
   #CONTRIBUTORS
   contributors:
     image: "angorasix/contributors:${TAG:-latest}"
@@ -50,6 +67,8 @@ services:
       - angorasix-net
     build:
       context: ../projects/core
+      additional_contexts:
+        a6-deps: ~/.m2/repository/com/angorasix
     environment:
       A6_PROJECTS_CORE_PORT: 8080
       A6_PROJECTS_CORE_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL}
@@ -133,6 +152,40 @@ services:
       A6_PROJECTS_MGMT_CORE_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_A6_PROJECTS_MGMT_CORE_OAUTH_SECURITY_ISSUER_URI:-http://contributors:8080}
     ports:
       - '9086:8080'
+
+  events:
+    image: "angorasix/events:${TAG-latest}"
+    restart: on-failure:3
+    networks:
+      - angorasix-net
+    build:
+      context: ../events
+    environment:
+      A6_EVENTS_PORT: 8080
+      A6_EVENTS_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL}
+      A6_EVENTS_MONGO_DB_NAME: a6ProjectsManagementCoreLocal
+      A6_EVENTS_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
+      A6_EVENTS_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_A6_EVENTS_OAUTH_SECURITY_ISSUER_URI:-http://contributors:8080}
+      A6_EVENTS_RABBITMQ_HOST: a6-rabbitmq
+    ports:
+      - '9087:8080'
+
+  notifications:
+    image: "angorasix/notifications:${TAG-latest}"
+    restart: on-failure:3
+    networks:
+      - angorasix-net
+    build:
+      context: ../notifications
+    environment:
+      A6_NOTIFICATIONS_PORT: 8080
+      A6_NOTIFICATIONS_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL}
+      A6_NOTIFICATIONS_MONGO_DB_NAME: a6ProjectsManagementCoreLocal
+      A6_NOTIFICATIONS_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
+      A6_NOTIFICATIONS_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_A6_NOTIFICATIONS_OAUTH_SECURITY_ISSUER_URI:-http://contributors:8080}
+      A6_NOTIFICATIONS_RABBITMQ_HOST: a6-rabbitmq
+    ports:
+      - '9088:8080'
 
   # FRONT
   front.aindanow:
