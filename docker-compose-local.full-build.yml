@@ -33,6 +33,18 @@ services:
       dockerfile: full-build.Dockerfile
       additional_contexts:
         a6-deps: ~/.m2/repository/com/angorasix
+
+  notifications:
+    build:
+      dockerfile: full-build.Dockerfile
+      additional_contexts:
+        a6-deps: ~/.m2/repository/com/angorasix
+
+  events:
+    build:
+      dockerfile: full-build.Dockerfile
+      additional_contexts:
+        a6-deps: ~/.m2/repository/com/angorasix
     
   # GATEWAY
   gateway:
