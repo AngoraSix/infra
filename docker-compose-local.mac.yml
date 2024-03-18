@@ -24,6 +24,12 @@ services:
 
   projects.management.core:
     platform: linux/arm64/v8
+
+  notifications:
+    platform: linux/arm64/v8
+
+  events:
+    platform: linux/arm64/v8
     
   # FRONT
   front.aindanow:

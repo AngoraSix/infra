@@ -8,10 +8,29 @@ services:
   # INFRA
   a6-mongo:
     image: mongo
+    command: ["--replSet", "myReplicaSet"]
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'myReplicaSet',members:[{_id:0,host:'localhost:27017'}]}) }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      start_interval: 1s
+      retries: 30
     networks:
       - angorasix-net
     ports:
       - '27017:27017'
+
+  a6-rabbitmq:
+    image: rabbitmq:management
+    networks:
+      - angorasix-net
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - ./resources/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./resources/rabbitmq/definitions/:/etc/rabbitmq/definitions/
 
   #CONTRIBUTORS
   contributors:
@@ -134,6 +153,37 @@ services:
     ports:
       - '9086:8080'
 
+  events:
+    image: "angorasix/events:${TAG-latest}"
+    restart: on-failure:3
+    networks:
+      - angorasix-net
+    build:
+      context: ../events
+    environment:
+      A6_EVENTS_PORT: 8080
+      A6_EVENTS_RABBITMQ_HOST: ${A6_INFRA_A6_RABBITMQ_HOST}
+      A6_EVENTS_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_A6_EVENTS_OAUTH_SECURITY_ISSUER_URI:-http://contributors:8080}
+    ports:
+      - '9087:8080'
+
+  notifications:
+    image: "angorasix/notifications:${TAG-latest}"
+    restart: on-failure:3
+    networks:
+      - angorasix-net
+    build:
+      context: ../notifications
+    environment:
+      A6_NOTIFICATIONS_PORT: 8080
+      A6_NOTIFICATIONS_RABBITMQ_HOST: ${A6_INFRA_A6_RABBITMQ_HOST}
+      A6_NOTIFICATIONS_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL}
+      A6_NOTIFICATIONS_MONGO_DB_NAME: a6Notifications
+      A6_NOTIFICATIONS_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
+      A6_NOTIFICATIONS_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_A6_NOTIFICATIONS_OAUTH_SECURITY_ISSUER_URI:-http://contributors:8080}
+    ports:
+      - '9088:8080'
+
   # FRONT
   front.aindanow:
     image: 'gcr.io/angorasix/front.aindanow:latest'
@@ -153,6 +203,7 @@ services:
       NEXTAUTH_URL_INTERNAL: http://front.aindanow:80
       AN_APP_API_SERVER_BASE_URL: ${A6_INFRA_AN_APP_API_SERVER_BASE_URL}
       AN_APP_API_BROWSER_BASE_URL: ${A6_INFRA_AN_APP_API_BROWSER_BASE_URL}
+      AN_APP_API_EVENTSOURCE_LOCALHOST: ${A6_INFRA_AN_APP_API_EVENTSOURCE_LOCALHOST}
       AN_APP_AN_FRONT_PUBLIC_MEDIA_SERVER_BASE_URL: ${A6_INFRA_AN_APP_AN_FRONT_PUBLIC_MEDIA_SERVER_BASE_URL}
       AN_APP_AUTH_COOKIE: ${A6_INFRA_AN_APP_AUTH_COOKIE}
       AN_APP_THIRDPARTIES_YOUTUBE_APIKEY: ${A6_INFRA_AN_APP_THIRDPARTIES_YOUTUBE_APIKEY}
@@ -217,6 +268,8 @@ services:
       A6_GATEWAY_PROJECTS_MANAGEMENT_URI: ${A6_INFRA_GATEWAY_PROJECTS_MANAGEMENT_URI:-http://projects.management.core:8080}
       A6_GATEWAY_MEDIA_URI: ${A6_INFRA_GATEWAY_MEDIA_URI:-http://media:80}
       A6_GATEWAY_CLUBS_URI: ${A6_INFRA_GATEWAY_CLUBS_URI:-http://clubs:8080}
+      A6_GATEWAY_EVENTS_URI: ${A6_INFRA_GATEWAY_EVENTS_URI:-http://events:8080}
+      A6_GATEWAY_NOTIFICATIONS_URI: ${A6_INFRA_GATEWAY_NOTIFICATIONS_URI:-http://notifications:8080}
       A6_GATEWAY_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_GATEWAY_OAUTH_SECURITY_ISSUER_URI:-http://contributors:8080}
       A6_GATEWAY_CORS_ALLOWEDORIGINS: ${A6_INFRA_A6_GATEWAY_CORS_ALLOWEDORIGINS}
       A6_GATEWAY_LOGGING_LEVEL_GATEWAY: ${A6_INFRA_A6_GATEWAY_LOGGING_LEVEL:-DEBUG}
