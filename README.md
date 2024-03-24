@@ -1,3 +1,9 @@
+# Dev Settings
+
+# IDE - IntelliJ:
+Set up code style settings in IntelliJ IDE:
+`Preferences > Editor > Code Style > Kotlin > (Gear Icon) > Impor Scheme > IntelliJ IDEA code style > (search for infra/resources/dev-settings/kotlin XML file`
+
 # angorasix.core
 Core project orchestrating all Angorasix services
 
