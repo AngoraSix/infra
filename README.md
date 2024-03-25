@@ -32,6 +32,9 @@ Manually through console or
 
 # INFRA GCP
 
+## Tutorial: GCP 01 - Deploy NEW service
+https://www.iorad.com/player/2354117/GCP-01---Deploy-NEW-service
+
 ## CI/CD with Github Actions
 
 1- Set up identity federation accounts:
@@ -77,3 +80,11 @@ git tag --delete vMajor.Minor.Patch
 git push origin :vMajor.Minor.Patch
 ```
 (remove the tag locally, and delete it in the remote repo)
+
+# Infra RabbitMQ:
+
+## Tutorial: RabbitMQ 01 - How to set up a remote instance using CloudAMQP.
+https://www.iorad.com/player/2354096/RabbitMQ-01---How-to-set-up-a-remote-instance-using-CloudAMQP-
+
+## Tutorial: RabbitMQ 02 - Get and set host and credentials
+https://www.iorad.com/player/2354101/RabbitMQ-02---Get-and-set-host-and-credentials
