@@ -1,33 +1,41 @@
-# angorasix.core
-Core project orchestrating all Angorasix services
+# Dev Settings
 
-# Build locally: Option A - Full build from Docker (takes more time)
+## IDE - IntelliJ:
+Set up code style settings in IntelliJ IDE:
+`Preferences > Editor > Code Style > Kotlin > (Gear Icon) > Impor Scheme > IntelliJ IDEA code style > (search for infra/resources/dev-settings/kotlin XML file`
+
+# DevOps
+
+## Build locally: Option A - Full build from Docker (takes more time)
 `docker-compose -f docker-compose-local.yml -f docker-compose-local.full-build.yml up -d`
 
-# Build locally: Option B - Faster Docker Build (uses pre-build resources)
+## Build locally: Option B - Faster Docker Build (uses pre-build resources)
 For Maven projects:
 `mvn clean package`
 `npm run build` (not necessary - Docker builds for us)
 `docker-compose -f docker-compose-local.yml build`
 
-# Build for GCP
+## Build for GCP
 (gcp dockerfile uses base config only overriding image fields)
 `docker-compose -f docker-compose-local.yml -f docker-compose.gcp.yml build <service>`
 
-# Push to GCP Registry
+## Push to GCP Registry
 `docker-compose -f docker-compose-local.yml -f docker-compose.gcp.yml push <service>`
 
-# Debug container
+## Debug container
 `docker export gcp-debug-container > debug-container.tar`
 
-# Push service config
+## Push service config
 Manually through console or 
 `cd config/infra/prod-b`
 `gcloud run services replace ` + <service>.yaml
 
-### INFRA GCP
+# INFRA GCP
 
-# CI/CD with Github Actions
+## Tutorial: GCP 01 - Deploy NEW service
+https://www.iorad.com/player/2354117/GCP-01---Deploy-NEW-service
+
+## CI/CD with Github Actions
 
 1- Set up identity federation accounts:
 https://cloud.google.com/blog/products/identity-security/secure-your-use-of-third-party-tools-with-identity-federation
@@ -43,7 +51,7 @@ gcloud iam service-accounts add-iam-policy-binding service-account@angorasix.iam
 3- Create Github setup (clone from other projects - using base actions defined in this repo):
 https://cloud.google.com/blog/products/devops-sre/deploy-to-cloud-run-with-github-actions
 
-# Google Cloud Run service-to-service communication
+## Google Cloud Run service-to-service communication
 
 Receiveing service logs:
 
@@ -55,7 +63,7 @@ https://cloud.google.com/run/docs/authenticating/service-to-service
 In general, we want to manage the request ourselves, so this resource is more suitable:
 https://cloud.google.com/run/docs/securing/service-identity#identity-tokens
 
-# Manage Git pushes:
+## Manage Git pushes:
 Tags with the format `vMajor.Minor.Patch` (major.minor.patch) version trigger a new artifact/image push.
 
 To create a new tag in the current commit:
@@ -72,3 +80,11 @@ git tag --delete vMajor.Minor.Patch
 git push origin :vMajor.Minor.Patch
 ```
 (remove the tag locally, and delete it in the remote repo)
+
+# Infra RabbitMQ:
+
+## Tutorial: RabbitMQ 01 - How to set up a remote instance using CloudAMQP.
+https://www.iorad.com/player/2354096/RabbitMQ-01---How-to-set-up-a-remote-instance-using-CloudAMQP-
+
+## Tutorial: RabbitMQ 02 - Get and set host and credentials
+https://www.iorad.com/player/2354101/RabbitMQ-02---Get-and-set-host-and-credentials
