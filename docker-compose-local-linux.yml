@@ -151,7 +151,7 @@ services:
 
   # FRONT
   front.aindanow:
-    image: 'gcr.io/angorasix/front.aindanow:latest'
+    image: 'angorasix/front.aindanow:${TAG-latest}'
     restart: on-failure:3
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:9090/api/health']
@@ -183,6 +183,36 @@ services:
       AN_FRONT_CONFIG_IMAGES_ALLOWEDDOMAINS: ${A6_INFRA_AN_FRONT_CONFIG_IMAGES_ALLOWEDDOMAINS}
       NODE_TLS_REJECT_UNAUTHORIZED: ${A6_INFRA_AN_NODE_TLS_REJECT_UNAUTHORIZED:-1}
       AN_APP_OAUTH_FW_DEBUG: ${A6_INFRA_AN_APP_OAUTH_FW_DEBUG:-true}
+
+  
+
+  front.angorasix:
+    image: "angorasix/front.angorasix:${TAG-latest}"
+    restart: unless-stopped
+    networks:
+      - angorasix-net
+    build:
+      context: ../front/AngoraSix
+      dockerfile: Dockerfile_7070
+    environment:
+      NEXTAUTH_URL:  ${A6_INFRA_A6_CANONICAL_URL_ANGORASIX}
+      NEXTAUTH_URL_INTERNAL: http://localhost:7070
+      A6_APP_API_SERVER_BASE_URL: ${A6_INFRA_A6_APP_API_SERVER_BASE_URL}
+      A6_APP_API_BROWSER_BASE_URL: ${A6_INFRA_A6_APP_API_BROWSER_BASE_URL}
+      A6_APP_API_EVENTSOURCE_LOCALHOST: ${A6_INFRA_A6_APP_API_EVENTSOURCE_LOCALHOST}
+      A6_APP_AUTH_COOKIE: ${A6_INFRA_A6_APP_AUTH_COOKIE}
+      A6_APP_THIRDPARTIES_YOUTUBE_APIKEY: ${A6_INFRA_A6_APP_THIRDPARTIES_YOUTUBE_APIKEY}
+      A6_APP_OAUTH_PROVIDER_ISSUER: ${A6_INFRA_A6_APP_OAUTH_PROVIDER_ISSUER}
+      A6_APP_OAUTH_PROVIDER_TOKEN_ENDPOINT: ${A6_INFRA_A6_APP_OAUTH_PROVIDER_TOKEN_ENDPOINT:-http://contributors:8080/not-overriden/token}
+      A6_APP_OAUTH_PROVIDER_AUTHORIZATION_ENDPOINT: ${A6_INFRA_A6_APP_OAUTH_PROVIDER_AUTHORIZATION_ENDPOINT:-http://contributors:8080/not-overriden/authorize}
+      A6_APP_OAUTH_PROVIDER_JWKS_ENDPOINT: ${A6_INFRA_A6_APP_OAUTH_PROVIDER_JWKS_ENDPOINT:-http://contributors:8080/not-overriden/oauth2/jwks}
+      A6_APP_OAUTH_CLIENT_ID: ${A6_INFRA_A6_APP_OAUTH_CLIENT_ID}
+      A6_APP_OAUTH_CLIENT_SECRET: ${A6_INFRA_A6_APP_OAUTH_CLIENT_SECRET}
+      A6_APP_OAUTH_REDIRECT_URI: ${A6_INFRA_A6_APP_OAUTH_REDIRECT_URI}
+      A6_APP_OAUTH_JWT_SECRET: ${A6_INFRA_A6_APP_OAUTH_JWT_SECRET}
+      A6_APP_MAIN_SECRET: ${A6_INFRA_A6_APP_MAIN_SECRET}
+      NODE_TLS_REJECT_UNAUTHORIZED: ${A6_INFRA_AN_NODE_TLS_REJECT_UNAUTHORIZED:-1}
+      A6_APP_OAUTH_FW_DEBUG: ${A6_INFRA_A6_APP_OAUTH_FW_DEBUG:-true}
 
   # GATEWAY
   gateway:
