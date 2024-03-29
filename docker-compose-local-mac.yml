@@ -34,6 +34,9 @@ services:
   # FRONT
   front.aindanow:
     platform: linux/arm64/v8
+
+  front.angorasix:
+    platform: linux/arm64/v8
     
   # GATEWAY
   gateway:
