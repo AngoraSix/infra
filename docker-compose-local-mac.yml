@@ -30,6 +30,10 @@ services:
 
   events:
     platform: linux/arm64/v8
+
+  # INTEGRATIONS
+  integrations.iframe:
+    platform: linux/arm64/v8
     
   # FRONT
   front.aindanow:
