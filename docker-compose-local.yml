@@ -193,6 +193,18 @@ services:
     ports:
       - '9088:8080'
 
+  # INTEGRATIONS
+
+  integrations.iframe:
+    image: "angorasix/integrations.iframe:${TAG-latest}"
+    restart: unless-stopped
+    build:
+      context: ../integrations/iframe
+    environment:
+      A6_INTEGRATIONS_IFRAME_SVC_PORT: 8080
+    ports:
+      - '6061:8080'
+
   # FRONT
   front.aindanow:
     image: "angorasix/front.aindanow:${TAG-latest}"
