@@ -88,3 +88,33 @@ https://www.iorad.com/player/2354096/RabbitMQ-01---How-to-set-up-a-remote-instan
 
 ## Tutorial: RabbitMQ 02 - Get and set host and credentials
 https://www.iorad.com/player/2354101/RabbitMQ-02---Get-and-set-host-and-credentials
+
+# Config Decisions:
+
+## Port ranges:
+
+* 100[00-49]: Bare Infra
+    * Gateway: 10000
+    * Media: 10001
+    * Integrations.Iframe: 10002
+
+* 101[00-99]: Domain Infra
+    * Contributors: 10100
+    * Events: 10101
+    * Notifications: 10102
+
+* 102[00-99]: Projects
+    * Core: 10200
+    * Presentation: 10201
+
+* 103[00-99]: Project Managements
+    * Core: 10300
+    * Tasks: 10301
+    * Integrations: 10302
+
+* 107[00-99]: Fronts
+    * AngoraSix: 10700
+    * AindaNow: 10701
+
+* 109[00-99]: Others
+    * Clubs: 10900
