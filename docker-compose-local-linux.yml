@@ -31,7 +31,7 @@ services:
     build:
       context: ../contributors
     environment:
-      A6_CONTRIBUTORS_PORT: 9081
+      A6_CONTRIBUTORS_PORT: 10100
       A6_CONTRIBUTORS_LOGGING_LEVEL_ROOT: ${A6_INFRA_A6_CONTRIBUTORS_LOGGING_LEVEL_ROOT:-INFO}
       A6_CONTRIBUTORS_LOGGING_LEVEL_AUTHORIZATION: ${A6_INFRA_A6_CONTRIBUTORS_LOGGING_LEVEL_AUTHORIZATION:-INFO}
       A6_CONTRIBUTORS_LOGGING_LEVEL_CLIENT: ${A6_INFRA_A6_CONTRIBUTORS_LOGGING_LEVEL_CLIENT:-INFO}
@@ -57,10 +57,10 @@ services:
     build:
       context: ../projects/core
     environment:
-      A6_PROJECTS_CORE_PORT: 9082
+      A6_PROJECTS_CORE_PORT: 10200
       A6_PROJECTS_CORE_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL_LOCALHOST}
       A6_PROJECTS_CORE_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
-      A6_PROJECTS_CORE_OAUTH_SECURITY_ISSUER_URI: http://localhost:9081
+      A6_PROJECTS_CORE_OAUTH_SECURITY_ISSUER_URI: http://localhost:10100
 
   projects.presentations:
     image: 'angorasix/projects.presentations:${TAG:-latest}'
@@ -71,10 +71,10 @@ services:
     build:
       context: ../projects/presentations
     environment:
-      A6_PROJECTS_PRESENTATIONS_PORT: 9083
+      A6_PROJECTS_PRESENTATIONS_PORT: 10201
       A6_PROJECTS_PRESENTATIONS_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL_LOCALHOST}
       A6_PROJECTS_PRESENTATIONS_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
-      A6_PROJECTS_PRESENTATIONS_OAUTH_SECURITY_ISSUER_URI: http://localhost:9081
+      A6_PROJECTS_PRESENTATIONS_OAUTH_SECURITY_ISSUER_URI: http://localhost:10100
 
   media:
     image: 'angorasix/media:${TAG:-latest}'
@@ -107,10 +107,10 @@ services:
     build:
       context: ../clubs
     environment:
-      A6_CLUBS_PORT: 9085
+      A6_CLUBS_PORT: 10900
       A6_CLUBS_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL_LOCALHOST}
       A6_CLUBS_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
-      A6_CLUBS_OAUTH_SECURITY_ISSUER_URI: http://localhost:9081
+      A6_CLUBS_OAUTH_SECURITY_ISSUER_URI: http://localhost:10100
 
   projects.management.core:
     image: 'angorasix/projects.management.core:${TAG-latest}'
@@ -119,10 +119,10 @@ services:
     build:
       context: ../projects/mgmt/core
     environment:
-      A6_PROJECTS_MGMT_CORE_PORT: 9086
+      A6_PROJECTS_MGMT_CORE_PORT: 10300
       A6_PROJECTS_MGMT_CORE_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL_LOCALHOST}
       A6_PROJECTS_MGMT_CORE_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
-      A6_PROJECTS_MGMT_CORE_OAUTH_SECURITY_ISSUER_URI: http://localhost:9081
+      A6_PROJECTS_MGMT_CORE_OAUTH_SECURITY_ISSUER_URI: http://localhost:10100
 
   events:
     image: "angorasix/events:${TAG-latest}"
@@ -131,7 +131,7 @@ services:
     build:
       context: ../events
     environment:
-      A6_EVENTS_PORT: 9087
+      A6_EVENTS_PORT: 10101
       A6_EVENTS_RABBITMQ_HOST: ${A6_INFRA_A6_RABBITMQ_HOST}
       A6_EVENTS_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_A6_EVENTS_OAUTH_SECURITY_ISSUER_URI:-http://contributors:8080}
 
@@ -142,7 +142,7 @@ services:
     build:
       context: ../notifications
     environment:
-      A6_NOTIFICATIONS_PORT: 9088
+      A6_NOTIFICATIONS_PORT: 10102
       A6_NOTIFICATIONS_RABBITMQ_HOST: ${A6_INFRA_A6_RABBITMQ_HOST}
       A6_NOTIFICATIONS_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL}
       A6_NOTIFICATIONS_MONGO_DB_NAME: a6Notifications
@@ -154,7 +154,7 @@ services:
     image: 'angorasix/front.aindanow:${TAG-latest}'
     restart: on-failure:3
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:9090/api/health']
+      test: ['CMD', 'curl', '-f', 'http://localhost:10701/api/health']
       interval: 30s
       timeout: 30s
       retries: 1
@@ -162,10 +162,10 @@ services:
     network_mode: host
     build:
       context: ../front/AindaNow
-      dockerfile: Dockerfile_9090
+      dockerfile: Dockerfile_10701
     environment:
       NEXTAUTH_URL: ${A6_INFRA_AN_CANONICAL_URL_AINDANOW}
-      NEXTAUTH_URL_INTERNAL: http://localhost:9090
+      NEXTAUTH_URL_INTERNAL: http://localhost:10701
       AN_APP_API_SERVER_BASE_URL: ${A6_INFRA_AN_APP_API_SERVER_BASE_URL_LOCALHOST}
       AN_APP_API_BROWSER_BASE_URL: ${A6_INFRA_AN_APP_API_BROWSER_BASE_URL}
       AN_APP_AN_FRONT_PUBLIC_MEDIA_SERVER_BASE_URL: ${A6_INFRA_AN_APP_AN_FRONT_PUBLIC_MEDIA_SERVER_BASE_URL}
@@ -193,10 +193,10 @@ services:
       - angorasix-net
     build:
       context: ../front/AngoraSix
-      dockerfile: Dockerfile_7070
+      dockerfile: Dockerfile_10700
     environment:
       NEXTAUTH_URL:  ${A6_INFRA_A6_CANONICAL_URL_ANGORASIX}
-      NEXTAUTH_URL_INTERNAL: http://localhost:7070
+      NEXTAUTH_URL_INTERNAL: http://localhost:10700
       A6_APP_API_SERVER_BASE_URL: ${A6_INFRA_A6_APP_API_SERVER_BASE_URL}
       A6_APP_API_BROWSER_BASE_URL: ${A6_INFRA_A6_APP_API_BROWSER_BASE_URL}
       A6_APP_API_EVENTSOURCE_LOCALHOST: ${A6_INFRA_A6_APP_API_EVENTSOURCE_LOCALHOST}
@@ -224,13 +224,13 @@ services:
     build:
       context: ../gateway
     environment:
-      A6_GATEWAY_PORT: 9080
-      A6_GATEWAY_CONTRIBUTORS_URI: http://localhost:9081
-      A6_GATEWAY_PROJECTS_CORE_URI: http://localhost:9082
-      A6_GATEWAY_PROJECTS_PRESENTATION_URI: http://localhost:9083
-      A6_GATEWAY_PROJECTS_MANAGEMENT_URI: http://localhost:9086
-      A6_GATEWAY_MEDIA_URI: http://localhost:9084
-      A6_GATEWAY_CLUBS_URI: http://localhost:9085
-      A6_GATEWAY_OAUTH_SECURITY_ISSUER_URI: http://localhost:9081
+      A6_GATEWAY_PORT: 10000
+      A6_GATEWAY_CONTRIBUTORS_URI: http://localhost:10100
+      A6_GATEWAY_PROJECTS_CORE_URI: http://localhost:10200
+      A6_GATEWAY_PROJECTS_PRESENTATION_URI: http://localhost:10201
+      A6_GATEWAY_PROJECTS_MANAGEMENT_URI: http://localhost:10300
+      A6_GATEWAY_MEDIA_URI: http://localhost:10001
+      A6_GATEWAY_CLUBS_URI: http://localhost:10900
+      A6_GATEWAY_OAUTH_SECURITY_ISSUER_URI: http://localhost:10100
       A6_GATEWAY_CORS_ALLOWEDORIGINS: ${A6_INFRA_A6_GATEWAY_CORS_ALLOWEDORIGINS}
       A6_GATEWAY_LOGGING_LEVEL_GATEWAY: ${A6_INFRA_A6_GATEWAY_LOGGING_LEVEL:-DEBUG}

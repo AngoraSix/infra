@@ -1,5 +1,6 @@
 .env
 config/
+local/
 .DS_Store
 old.env
 .env.local
