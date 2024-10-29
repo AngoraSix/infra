@@ -81,6 +81,23 @@ git push origin :vMajor.Minor.Patch
 ```
 (remove the tag locally, and delete it in the remote repo)
 
+# Infra Publish Maven Artifacts
+
+## Create and Distribute GPG Token:
+https://central.sonatype.org/publish/requirements/gpg/#signing-a-file
+
+Can use `openssl rand -base64 32` to generate passphrase
+
+## ASCII-armor key (create private key)
+https://dzone.com/articles/how-to-publish-artifacts-to-maven-central
+
+gpg --armor --export-secret-keys YOUR_KEY_ID > private.gpg
+
+## Update Maven Variables
+Passphrase and Private Key
+
+## (Re)trigger the build
+
 # Infra RabbitMQ:
 
 ## Tutorial: RabbitMQ 01 - How to set up a remote instance using CloudAMQP.
@@ -118,3 +135,10 @@ https://www.iorad.com/player/2354101/RabbitMQ-02---Get-and-set-host-and-credenti
 
 * 109[00-99]: Others
     * Clubs: 10900
+
+## Local Postman
+### Collection:
+`https://angora-s-six.postman.co/workspace/AngoraSix~d1d6924a-6c95-4f3c-8012-b231bc5bb898/collection/32020175-92414228-aaa4-4a0b-93f5-b930368e9f1f?action=share&creator=32020175&active-environment=32020175-d1a1dea9-4f02-482b-b651-51308e57c00e`
+
+### Environment:
+`https://angora-s-six.postman.co/workspace/AngoraSix~d1d6924a-6c95-4f3c-8012-b231bc5bb898/environment/32020175-d1a1dea9-4f02-482b-b651-51308e57c00e?action=share&creator=32020175&active-environment=32020175-d1a1dea9-4f02-482b-b651-51308e57c00e`
