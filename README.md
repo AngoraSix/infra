@@ -81,12 +81,93 @@ git push origin :vMajor.Minor.Patch
 ```
 (remove the tag locally, and delete it in the remote repo)
 
+### Clean git tag:
+`git tag -d v0.0.0`
+
+`git push --delete origin v0.0.0`
+
+## Setup new Cloud Run container - Backend service:
+1- Git push version tag to get container created (the deploy will fail though)
+
+2- Go to the GCP Console for Cloud Run
+
+3- In the list, select the container, and then select on "Permissions". Add Principal: "Default Service Compute Account" and "a6-services-id@angorasix.iam.gserviceaccount.com" as in other services, with Cloud Run Invoker. Save.
+
+4- Go into container details and `Edit & Deploy New Version`:
+4.A- Variables and Secrets: 
+- A6_*_PORT to 8080
+- A6_*_MONGO_DB_NAME to correspnding name
+- A6_*_MONGO_DB_PARAMS to `?retryWrites=true&w=majority`
+- A6_*_OAUTH_SECURITY_ISSUER_URI to corresponding value (check other services)
+- (SECRET) A6_*_MONGO_DB_URI reference to corresponding secret
+- any other variables and secrets for the service
+4.B- Networking tab:
+- Selct `Connect to a VPC for outbound traffic` and use `Use Serverless VPC Access connectors` selecting the corresponding a6-vpc entry.
+- Select `Route all traffic to the VPC`
+4.C- Deploy
+4.D- Copy the URL from the info dashboard, to be used in the Gateway Service setup
+
+5- Deploy new version of Gateway using git tag push, if suitable (most likely yes since we need to route to the new service)
+
+5.A- Go to the Gateway container details and `Edit & Deploy New Version`:
+setting up the new "A6_GATEWAY_*_URI" variable to the URL we copied before.
+
+## Setup new Cloud Run container - Frontend service:
+1- Git push version tag to get container created (the deploy will fail though)
+
+2- Go to the GCP Console for Cloud Run
+
+3- In the list, select the container, and then select on "Permissions". Add Principal: "allUsers" as in other front-end services, with Cloud Run Invoker. Save.
+
+4- Go into container details and `Edit & Deploy New Version`:
+4.A- Container Port:
+- 80
+- and Healthcheck to port 80 as well
+4.A- Variables and Secrets: 
+- NEXTAUTH_URL to base HTTPS domain
+- NEXTAUTH_URL_INTERNAL to container internal URL (in container details of step 4)
+- *_APP_API_SERVER_BASE_URL to internal Gateway service URL (from GatewaySvc container details)
+- *_PUBLIC_APP_API_BROWSER_BASE_URL to base HTTPS domain
+- *_APP_OAUTH_PROVIDER_ISSUER to Contributors internal URL (from Contributors container details)
+- *_APP_OAUTH_PROVIDER_TOKEN_ENDPOINT to Contributors internal URL + /oauth2/token
+- *_APP_OAUTH_PROVIDER_AUTHORIZATION_ENDPOINT to Contributors internal URL + /oauth2/authorize
+- *_APP_OAUTH_PROVIDER_JWKS_ENDPOINT to Contributors internal URL + /oauth2/jwks
+- *_APP_OAUTH_CLIENT_ID to matching client id configured in Contributors
+- *_APP_OAUTH_REDIRECT_URI to base public HTTPS domain URL + /api/auth/callback/angorasixspring 
+- *_APP_OAUTH_FW_DEBUG to false
+- *_APP_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED to true
+- *_PUBLIC_APP_THIRDPARTIES_GOOGLEANALYTICS_ID to corresponding ID
+- *_PUBLIC_APP_THIRDPARTIES_GOOGLEANALYTICS_ID (After registering new property in GA)
+- *_PUBLIC_APP_THIRDPARTIES_GOOGLERECAPTCHA_ID (After adding to valid URLs ing GCP)
+
+SECRETS
+- *_APP_MAIN_SECRET (Create new value)
+- *_APP_OAUTH_CLIENT_SECRET to existing secret
+- *_APP_OAUTH_JWT_SECRET (create new value)
+- *_APP_THIRDPARTIES_GOOGLERECAPTCHA_SECRET to existing secret
+- any other variables and secrets for the service
+4.B- Networking tab:
+- Selct `Connect to a VPC for outbound traffic` and use `Use Serverless VPC Access connectors` selecting the corresponding a6-vpc entry.
+- Select `Route all traffic to the VPC`
+4.C- Security:
+Service account to `a6-services-id@angorasix.iam.gserviceaccount.com`
+4.C- Deploy
+
+5- Go to Secret Manager in GCP
+- for new Secrets go into details and the Permissions
+- add `a6-services-id` with role `Secret Manager Secret Accessor`
+
+6- re-deploy
+
+7- If want to enable same LOGIN, add RedirectURI in Contributors service for new env property
+- Push changes in Contributor Service, and add corresponding env property
+
 # Infra Publish Maven Artifacts
 
 ## Create and Distribute GPG Token:
 https://central.sonatype.org/publish/requirements/gpg/#signing-a-file
 
-Can use `openssl rand -base64 32` to generate passphrase
+Can use `openssl rand -base64 32` to generate passphrase / secrets
 
 ## ASCII-armor key (create private key)
 https://dzone.com/articles/how-to-publish-artifacts-to-maven-central
@@ -133,8 +214,13 @@ https://www.iorad.com/player/2354101/RabbitMQ-02---Get-and-set-host-and-credenti
     * AngoraSix: 10700
     * AindaNow: 10701
 
-* 109[00-99]: Others
+* 109[00-49]: Others
     * Clubs: 10900
+    * Messaging: 10901
+
+* 109[50-99]: Others - Isolated
+    * Integrations-Iframe: 10950
+    * Surveys: 10951
 
 ## Local Postman
 ### Collection:
