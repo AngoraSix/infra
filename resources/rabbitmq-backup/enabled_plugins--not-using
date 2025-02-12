@@ -1,0 +1,6 @@
+[
+  rabbitmq_management,
+  rabbitmq_management_agent,
+  rabbitmq_web_dispatch,
+  rabbitmq_delayed_message_exchange
+].

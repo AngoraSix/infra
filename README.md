@@ -213,6 +213,7 @@ https://www.iorad.com/player/2354101/RabbitMQ-02---Get-and-set-host-and-credenti
 * 107[00-99]: Fronts
     * AngoraSix: 10700
     * AindaNow: 10701
+    * Cooperativemos: 10702
 
 * 109[00-49]: Others
     * Clubs: 10900
