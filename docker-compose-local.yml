@@ -31,6 +31,7 @@ services:
     volumes:
       - ./resources/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
       - ./resources/rabbitmq/definitions/:/etc/rabbitmq/definitions/
+      # - ./resources/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
 
   #CONTRIBUTORS
   contributors:
