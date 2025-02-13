@@ -79,6 +79,8 @@ services:
       A6_PROJECTS_PRESENTATIONS_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL_LOCALHOST}
       A6_PROJECTS_PRESENTATIONS_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
       A6_PROJECTS_PRESENTATIONS_OAUTH_SECURITY_ISSUER_URI: http://localhost:10100
+    profiles:
+      - an
 
   media:
     image: 'angorasix/media:${TAG:-latest}'
@@ -103,6 +105,8 @@ services:
       # A6_MEDIA_SVC_THUMBNAIL_MAX_SIZE:
       # A6_MEDIA_SVC_THUMBNAIL_JPG_QUALITY:
       # A6_MEDIA_SVC_THUMBNAIL_PNG_COMPRESSION:
+    profiles:
+      - an
 
   clubs:
     image: 'angorasix/clubs:${TAG:-latest}'
@@ -115,6 +119,8 @@ services:
       A6_CLUBS_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL_LOCALHOST}
       A6_CLUBS_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
       A6_CLUBS_OAUTH_SECURITY_ISSUER_URI: http://localhost:10100
+      A6_CLUBS_JWTINVITATIONTOKENS_SECRET: ${A6_CLUBS_JWTINVITATIONTOKENS_SECRET}
+      A6_CLUBS_SECURITY_SECRET_KEY: ${A6_CLUBS_SECURITY_SECRET_KEY}
 
   projects.management.core:
     image: 'angorasix/projects.management.core:${TAG-latest}'
@@ -127,20 +133,8 @@ services:
       A6_PROJECTS_MGMT_CORE_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL_LOCALHOST}
       A6_PROJECTS_MGMT_CORE_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
       A6_PROJECTS_MGMT_CORE_OAUTH_SECURITY_ISSUER_URI: http://localhost:10100
-
-  
-
-  projects.management.core:
-    image: 'angorasix/projects.management.core:${TAG-latest}'
-    restart: on-failure:3
-    network_mode: host
-    build:
-      context: ../projects/mgmt/core
-    environment:
-      A6_PROJECTS_MGMT_CORE_PORT: 10300
-      A6_PROJECTS_MGMT_CORE_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL_LOCALHOST}
-      A6_PROJECTS_MGMT_CORE_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
-      A6_PROJECTS_MGMT_CORE_OAUTH_SECURITY_ISSUER_URI: http://localhost:10100
+    profiles:
+      - a6
 
   projects.management.integrations:
     image: 'angorasix/projects.management.integrations:${TAG-latest}'
@@ -153,6 +147,10 @@ services:
       A6_PROJECTS_MGMT_INTEGRATIONS_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL_LOCALHOST}
       A6_PROJECTS_MGMT_INTEGRATIONS_MONGO_DB_NAME: '?retryWrites=true&w=majority'
       A6_PROJECTS_MGMT_INTEGRATIONS_MONGO_DB_PARAMS: http://localhost:10100
+      A6_PROJECTS_MGMT_INTEGRATIONS_INTEGRATION_TRELLO_APIKEY: ${A6_PROJECTS_MGMT_INTEGRATIONS_INTEGRATION_TRELLO_APIKEY}
+      A6_PROJECTS_MGMT_INTEGRATIONS_SECURITY_SECRET_KEY: ${A6_PROJECTS_MGMT_INTEGRATIONS_SECURITY_SECRET_KEY}
+    profiles:
+      - a6
 
   projects.management.tasks:
     image: 'angorasix/projects.management.tasks:${TAG-latest}'
@@ -165,6 +163,8 @@ services:
       A6_PROJECTS_MGMT_TASKS_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL_LOCALHOST}
       A6_PROJECTS_MGMT_TASKS_MONGO_DB_NAME: '?retryWrites=true&w=majority'
       A6_PROJECTS_MGMT_TASKS_MONGO_DB_PARAMS: http://localhost:10100
+    profiles:
+      - a6
 
   events:
     image: "angorasix/events:${TAG-latest}"
@@ -190,6 +190,21 @@ services:
       A6_NOTIFICATIONS_MONGO_DB_NAME: a6Notifications
       A6_NOTIFICATIONS_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
       A6_NOTIFICATIONS_OAUTH_SECURITY_ISSUER_URI: ${A6_INFRA_A6_NOTIFICATIONS_OAUTH_SECURITY_ISSUER_URI:-http://contributors:8080}
+  
+  # MESSAGING / EMAILS
+  messaging:
+    image: "angorasix/messaging:${TAG-latest}"
+    restart: on-failure:3
+    network_mode: host
+    build:
+      context: ../messaging
+    environment:
+      A6_MESSAGING_PORT: 10901
+      A6_MESSAGING_RABBITMQ_HOST: ${A6_MESSAGING_RABBITMQ_HOST}
+      A6_MESSAGING_MAIL_USERNAME: ${A6_MESSAGING_MAIL_USERNAME}
+      A6_MESSAGING_MAIL_PASSWORD: ${A6_MESSAGING_MAIL_PASSWORD}
+    profiles:
+      - a6
 
   # FRONT
   front.aindanow:
@@ -228,6 +243,8 @@ services:
       AN_APP_MAIN_SECRET: ${AN_APP_MAIN_SECRET}
       AN_APP_OAUTH_FW_DEBUG: ${AN_APP_OAUTH_FW_DEBUG}
       AN_APP_AN_FRONT_PUBLIC_MEDIA_SERVICE_BASE_URL: ${AN_APP_AN_FRONT_PUBLIC_MEDIA_SERVICE_BASE_URL}
+    profiles:
+      - an
 
   front.angorasix:
     image: "angorasix/front.angorasix:${TAG-latest}"
@@ -255,6 +272,8 @@ services:
       A6_APP_OAUTH_JWT_SECRET: ${A6_APP_OAUTH_JWT_SECRET}
       A6_APP_MAIN_SECRET: ${A6_APP_MAIN_SECRET}
       A6_APP_OAUTH_FW_DEBUG: ${A6_APP_OAUTH_FW_DEBUG}
+    profiles:
+      - a6
 
   # GATEWAY
   gateway:
