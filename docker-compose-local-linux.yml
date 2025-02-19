@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # INFRA
   a6-mongo:
@@ -145,8 +143,9 @@ services:
     environment:
       A6_PROJECTS_MGMT_INTEGRATIONS_PORT: 10302
       A6_PROJECTS_MGMT_INTEGRATIONS_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL_LOCALHOST}
-      A6_PROJECTS_MGMT_INTEGRATIONS_MONGO_DB_NAME: '?retryWrites=true&w=majority'
-      A6_PROJECTS_MGMT_INTEGRATIONS_MONGO_DB_PARAMS: http://localhost:10100
+      A6_PROJECTS_MGMT_TASKS_MONGO_DB_NAME: 'a6MgmtIntegrations'
+      A6_PROJECTS_MGMT_INTEGRATIONS_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
+      A6_PROJECTS_MGMT_CORE_OAUTH_SECURITY_ISSUER_URI: http://localhost:10100
       A6_PROJECTS_MGMT_INTEGRATIONS_INTEGRATION_TRELLO_APIKEY: ${A6_PROJECTS_MGMT_INTEGRATIONS_INTEGRATION_TRELLO_APIKEY}
       A6_PROJECTS_MGMT_INTEGRATIONS_SECURITY_SECRET_KEY: ${A6_PROJECTS_MGMT_INTEGRATIONS_SECURITY_SECRET_KEY}
     profiles:
@@ -159,10 +158,11 @@ services:
     build:
       context: ../projects/mgmt/tasks
     environment:
-      A6_PROJECTS_MGMT_TASKS_PORT: 10302
+      A6_PROJECTS_MGMT_TASKS_PORT: 10301
       A6_PROJECTS_MGMT_TASKS_MONGO_DB_URI: ${A6_INFRA_A6_MONGO_URL_LOCALHOST}
-      A6_PROJECTS_MGMT_TASKS_MONGO_DB_NAME: '?retryWrites=true&w=majority'
-      A6_PROJECTS_MGMT_TASKS_MONGO_DB_PARAMS: http://localhost:10100
+      A6_PROJECTS_MGMT_TASKS_MONGO_DB_NAME: 'a6MgmtTasks'
+      A6_PROJECTS_MGMT_INTEGRATIONS_MONGO_DB_PARAMS: '?retryWrites=true&w=majority'
+      A6_PROJECTS_MGMT_CORE_OAUTH_SECURITY_ISSUER_URI: http://localhost:10100
     profiles:
       - a6
 
@@ -249,8 +249,9 @@ services:
   front.angorasix:
     image: "angorasix/front.angorasix:${TAG-latest}"
     restart: unless-stopped
-    networks:
-      - angorasix-net
+    network_mode: host
+    # networks:
+    #   - angorasix-net
     build:
       context: ../front/AngoraSix
       dockerfile: Dockerfile_10700
