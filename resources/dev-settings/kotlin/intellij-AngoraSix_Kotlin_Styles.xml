@@ -1,4 +1,4 @@
-<code_scheme name="AngoraSix Kotlin Styles" version="173">
+<code_scheme name="AngoraSix copy" version="173">
   <option name="OTHER_INDENT_OPTIONS">
     <value>
       <option name="INDENT_SIZE" value="2" />
@@ -6,9 +6,30 @@
       <option name="TAB_SIZE" value="2" />
     </value>
   </option>
+  <option name="INSERT_INNER_CLASS_IMPORTS" value="false" />
+  <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="5" />
+  <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="3" />
+  <option name="PACKAGES_TO_USE_IMPORT_ON_DEMAND">
+    <value>
+      <package name="java.awt" withSubpackages="false" static="false" />
+      <package name="javax.swing" withSubpackages="false" static="false" />
+    </value>
+  </option>
+  <option name="IMPORT_LAYOUT_TABLE">
+    <value>
+      <package name="" withSubpackages="true" static="false" />
+      <emptyLine />
+      <package name="javax" withSubpackages="true" static="false" />
+      <package name="java" withSubpackages="true" static="false" />
+      <emptyLine />
+      <package name="" withSubpackages="true" static="true" />
+    </value>
+  </option>
   <option name="RIGHT_MARGIN" value="100" />
+  <option name="KEEP_BLANK_LINES_IN_CODE" value="2" />
   <option name="KEEP_CONTROL_STATEMENT_IN_ONE_LINE" value="false" />
   <option name="KEEP_BLANK_LINES_BEFORE_RBRACE" value="0" />
+  <option name="BLANK_LINES_AFTER_CLASS_HEADER" value="0" />
   <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
   <option name="ALIGN_MULTILINE_FOR" value="false" />
   <option name="SPACE_BEFORE_ARRAY_INITIALIZER_LBRACE" value="true" />
@@ -55,8 +76,11 @@
     </option>
   </JavaCodeStyleSettings>
   <JetCodeStyleSettings>
-    <option name="NAME_COUNT_TO_USE_STAR_IMPORT" value="99" />
-    <option name="NAME_COUNT_TO_USE_STAR_IMPORT_FOR_MEMBERS" value="99" />
+    <option name="PACKAGES_TO_USE_STAR_IMPORTS">
+      <value />
+    </option>
+    <option name="NAME_COUNT_TO_USE_STAR_IMPORT" value="2147483647" />
+    <option name="NAME_COUNT_TO_USE_STAR_IMPORT_FOR_MEMBERS" value="2147483647" />
   </JetCodeStyleSettings>
   <Objective-C>
     <option name="INDENT_NAMESPACE_MEMBERS" value="0" />
@@ -576,11 +600,6 @@
         </section>
       </rules>
     </arrangement>
-  </codeStyleSettings>
-  <codeStyleSettings language="kotlin">
-    <indentOptions>
-      <option name="CONTINUATION_INDENT_SIZE" value="4" />
-    </indentOptions>
   </codeStyleSettings>
   <codeStyleSettings language="protobuf">
     <option name="RIGHT_MARGIN" value="80" />
