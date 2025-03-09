@@ -4,6 +4,19 @@
 Set up code style settings in IntelliJ IDE:
 `Preferences > Editor > Code Style > Kotlin > (Gear Icon) > Impor Scheme > IntelliJ IDEA code style > (search for infra/resources/dev-settings/kotlin XML file`
 
+Then setup Ktlint Plugin (in `distract free` mode):
+https://pinterest.github.io/ktlint/latest/install/setup/ 
+
+## Maven - format:
+`mvn clean verify`
+
+- just ktlint checks:
+`mvn antrun:run@ktlint`
+
+- ktlin format:
+`mvn antrun:run@ktlint-format`
+
+
 # DevOps
 
 ## Build locally: Option A - Full build from Docker (takes more time)
