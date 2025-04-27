@@ -33,6 +33,17 @@ services:
       - ./resources/rabbitmq/definitions/:/etc/rabbitmq/definitions/
       # - ./resources/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
 
+  a6-axon:
+    image: axoniq/axonserver
+    networks:
+      - angorasix-net
+    ports:
+      - '8024:8024'
+      - '8124:8124'
+    environment:
+      - AXONIQ_AXONSERVER_DEVMODE_ENABLED=true
+      - AXONIQ_AXONSERVER_STANDALONE=true
+
   #CONTRIBUTORS
   contributors:
     image: "angorasix/contributors:${TAG:-latest}"
