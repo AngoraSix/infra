@@ -89,8 +89,10 @@ Remember to protect the `v*.*.*` tags in the Github repository configs.
 
 If we need to re-push a tag (mainly because the CI plan failed, and we need to fix the codebase and re-run it):
 ```
-git tag --delete vMajor.Minor.Patch
-git push origin :vMajor.Minor.Patch
+TAG=v0.3.
+
+git tag --delete $TAG
+git push origin :$TAG
 ```
 (remove the tag locally, and delete it in the remote repo)
 
@@ -222,7 +224,7 @@ https://www.iorad.com/player/2354101/RabbitMQ-02---Get-and-set-host-and-credenti
     * Core: 10300
     * Tasks: 10301
     * Integrations: 10302
-    * Accounts: 10303
+    * Accounting: 10303
 
 * 107[00-99]: Fronts
     * AngoraSix: 10700
